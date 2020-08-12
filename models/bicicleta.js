@@ -1,40 +1,47 @@
-const Bicicleta = function(id, color, modelo, ubicacion) {
-    this.id = id;
-    this.color = color;
-    this.modelo = modelo;
-    this.ubicacion = ubicacion;
-}
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-Bicicleta.prototype.toString = () => {
-    return `id: ${id} | color: ${color}`;
-}
-
-Bicicleta.allBicis = [];
-Bicicleta.add = (aBici) => {
-    Bicicleta.allBicis.push(aBici);
-}
-
-Bicicleta.findById = (aBiciId) => {
-    let aBici = Bicicleta.allBicis.find(x => x.id == aBiciId);
-    if (aBici)
-        return aBici
-    else
-        throw new Error(`No existe una bicicleta con el id ${aBiciId}`);
-}
-
-Bicicleta.removeById = (aBiciId) => {
-    for(let i = 0; i < Bicicleta.allBicis.length; i++) {
-        if (Bicicleta.allBicis[i].id == aBiciId) {
-            Bicicleta.allBicis.splice(i, 1);
-            break;
+const BicicletaShcema = new Schema({
+    code: Number,
+    color: String,
+    modelo: String,
+    ubicacion: {
+        type: [Number],
+        index: {
+            type: '2dsphere',
+            sparse: true
         }
     }
+});
+
+BicicletaShcema.statics.createInstance = function(code, color, modelo, ubicacion) {
+    return new this({
+        code,
+        color,
+        modelo,
+        ubicacion
+    });
+};
+
+BicicletaShcema.methods.toString = function() {
+    return `code: ${this.code} | color: ${this.color}`
+};
+
+BicicletaShcema.statics.allBicis = function(cb) {
+    return this.find({}, cb);
 }
 
-// var a = new Bicicleta(1, 'rojo', 'urbana', [3.43722, -76.5325]);
-// var b = new Bicicleta(2, 'blanca', 'urbana', [3.427033, -76.531690]);
+BicicletaShcema.statics.add = function(aBici, cb) {
+    this.create(aBici, cb);
+}
 
-// Bicicleta.add(a);
-// Bicicleta.add(b);
+BicicletaShcema.statics.findByCode = function(aCode, cb) {
+    return this.findOne({code: aCode}, cb);
+}
 
-module.exports = Bicicleta;
+BicicletaShcema.statics.removeByCode = function(aCode, cb) {
+    return this.deleteOne({code: aCode}, cb);
+}
+
+module.exports = mongoose.model('Bicicleta', BicicletaShcema)
+

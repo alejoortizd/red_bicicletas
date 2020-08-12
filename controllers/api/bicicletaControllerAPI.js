@@ -1,9 +1,15 @@
 const Bicicleta = require('../../models/bicicleta');
 
+// exports.bicicleta_list = (req, res) => {
+//     res.status(200).json({
+//         bicicletas: Bicicleta.allBicis
+//     });
+// }
+
 exports.bicicleta_list = (req, res) => {
-    res.status(200).json({
-        bicicletas: Bicicleta.allBicis
-    });
+    Bicicleta.allBicis((err, bicis) => {
+        res.status(200).json({Bicicleta: bicis})
+    })
 }
 
 exports.bicicleta_create = (req, res) => {
